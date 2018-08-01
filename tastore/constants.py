@@ -1,0 +1,4 @@
+class TASKAPP_STATUS(object):
+    ACTIVE = 'ACTIVE'
+    INACTIVE = 'INACTIVE'
+    SUSPENDED = 'SUSPENDED'
