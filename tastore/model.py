@@ -21,12 +21,10 @@ class TaskApp(db.Model):
     description = db.Column(db.String(2000))
     status = db.Column(db.String(20), nullable=False, default=TASKAPP_STATUS.ACTIVE)
 
-    @staticmethod
-    def create(data):
-        task_app = TaskApp()
-        task_app.name = data['name']
-        task_app.author_id = data['author_id']
-        task_app.current_task = data['current_task']
-        task_app.description = data['description']
-        db.session.add(task_app)
-        return task_app
+    _meta = ['name', 'description']
+
+    def update(self, data):
+        for key in self._meta:
+            if key in data:
+                setattr(self, key, data[key])
+        db.session.add(self)

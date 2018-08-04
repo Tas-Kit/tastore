@@ -43,6 +43,7 @@ def register_blueprints(app):
 
 parser = reqparse.RequestParser()
 parser.add_argument('search', type=str, location='args')
+parser.add_argument('uid', type=str, location='cookies')
 
 
 @ns.route('/')
@@ -52,17 +53,21 @@ class TaskAppListView(Resource):
     @ns.marshal_list_with(task_app_model)
     def get(self):
         args = parser.parse_args()
-        if args['search'] is not None:
-            search = args['search']
+        search = args['search']
+        if search is None or search == '':
+            return TaskApp.query.limit(PER_PAGE).all()
+        else:
             query = TaskApp.name.ilike('%{0}%'.format(search))
             return TaskApp.query.filter(query).paginate(per_page=PER_PAGE).items
-        else:
-            return TaskApp.query.limit(PER_PAGE).all()
 
     @ns.doc('Create Task App')
     @ns.expect(task_app_model, validate=True)
     @api.marshal_with(task_app_model)
     def post(self):
-        task_app = TaskApp.create(api.payload)
+        args = parser.parse_args()
+        uid = args['uid']
+        task_app = TaskApp()
+        task_app.author_id = uid
+        task_app.update(api.payload)
         db.session.commit()
         return task_app
