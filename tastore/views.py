@@ -115,32 +115,49 @@ class TaskAppListView(Resource):
 @ns.route('/<string:app_id>/')
 class TaskAppView(Resource):
 
-    @ns.doc('get_task_app')
-    @api.marshal_with(task_app_model)
+    @ns.doc('get_task_app', responses={404: 'Task App not found'})
+    @api.marshal_with(task_app_model, envelope='task_app')
     def get(self, app_id):
         """
         Get the task app by app_id
         """
-        return TaskApp.query.filter_by(app_id=app_id).first()
+        task_app = TaskApp.query.filter_by(app_id=app_id).first()
+        if task_app is None:
+            api.abort(404, "Cannot find Task App with app_id {}".format(app_id))
+        return task_app
 
-    @ns.doc('partially_update_task_app', parser=task_app_parser)
-    @api.marshal_with(task_app_model)
+    @ns.doc('partially_update_task_app', responses={404: 'Task App not found'}, parser=task_app_parser)
+    @api.marshal_with(task_app_model, envelope='task_app')
     def patch(self, app_id):
         """
         Partially update the task app
         """
         task_app = TaskApp.query.filter_by(app_id=app_id).first()
+        if task_app is None:
+            api.abort(404, "Cannot find Task App with app_id {}".format(app_id))
         task_app.last_update = datetime.utcnow()
         task_app.update(task_app_parser.parse_args())
         db.session.commit()
         return task_app
 
 
-# @ns.route('/<string:app_id>/upload_task/')
-# class UploadTaskApp(Resource):
+@ns.route('/<string:app_id>/download/')
+class DownloadTaskApp(Resource):
 
-#     @ns.doc('upload_task')
-#     @ns.expect(tid_parser, validate=True)
-#     @ns.marshal_with()
-#     def post(self, app_id):
-#         pass
+    @ns.doc('download_task')
+    def post(self, app_id):
+        """
+        Download a task from this task app
+        """
+        return 'SUCCESS'
+
+
+@ns.route('/<string:app_id>/upload/')
+class UploadTaskApp(Resource):
+
+    @ns.doc('upload_task', parser=tid_parser)
+    def post(self, app_id):
+        """
+        Upload a task to Task App
+        """
+        return 'SUCCESS'
