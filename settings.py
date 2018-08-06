@@ -7,6 +7,9 @@ TASKSERVICE_HOST = os.getenv('TASKSERVICE_HOST', 'taskservice')
 TASKSERVICE_PORT = os.getenv('TASKSERVICE_HOST', '8000')
 TASKSERVICE_VERSION = os.getenv('TASKSERVICE_VERSION', 'v1')
 
+# Target static dir
+COLLECT_STATIC_ROOT = './static'
+COLLECT_STORAGE = 'flask_collect.storage.file'
 
 # Flask-SQLAlchemy settings
 SQLALCHEMY_TRACK_MODIFICATIONS = False

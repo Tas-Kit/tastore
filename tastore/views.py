@@ -63,6 +63,13 @@ ns = api.namespace('TaskApp', description='Task App operations')
 def register_blueprints(app):
     app.register_blueprint(main_blueprint, url_prefix='/api/v1/tastore')
 
+
+def get_task_app(app_id):
+    task_app = TaskApp.query.filter_by(app_id=app_id).first()
+    if task_app is None:
+        api.abort(404, "Cannot find Task App with app_id {}".format(app_id))
+    return task_app
+
 # Basic parser for parsing uid in cookie section
 parser = reqparse.RequestParser()
 parser.add_argument('uid', type=str, location='cookies')
@@ -136,10 +143,7 @@ class TaskAppView(Resource):
         """
         Get the task app by app_id
         """
-        task_app = TaskApp.query.filter_by(app_id=app_id).first()
-        if task_app is None:
-            api.abort(404, "Cannot find Task App with app_id {}".format(app_id))
-        return task_app
+        return get_task_app(app_id)
 
     @ns.doc('partially_update_task_app', responses={404: 'Task App not found'}, parser=task_app_parser)
     @api.marshal_with(task_app_model, envelope='task_app')
@@ -147,9 +151,7 @@ class TaskAppView(Resource):
         """
         Partially update the task app
         """
-        task_app = TaskApp.query.filter_by(app_id=app_id).first()
-        if task_app is None:
-            api.abort(404, "Cannot find Task App with app_id {}".format(app_id))
+        task_app = get_task_app()
         task_app.last_update = datetime.utcnow()
         task_app.update(task_app_parser.parse_args())
         db.session.commit()
@@ -165,7 +167,7 @@ class DownloadTaskApp(Resource):
         """
         Preview the task information of the task app
         """
-        task_app = TaskApp.query.filter_by(app_id=app_id).first()
+        task_app = get_task_app()
         return task_app.preview()
 
     @ns.doc('download_task')
@@ -176,8 +178,10 @@ class DownloadTaskApp(Resource):
         """
         args = parser.parse_args()
         uid = args['uid']
-        task_app = TaskApp.query.filter_by(app_id=app_id).first()
-        return task_app.download(uid)
+        task_app = get_task_app()
+        result = task_app.download(uid)
+        db.session.commit()
+        return result
 
 
 @ns.route('/<string:app_id>/upload/')
@@ -193,5 +197,7 @@ class UploadTaskApp(Resource):
         uid = args['uid']
         args = tid_parser.parse_args()
         tid = args['tid']
-        task_app = TaskApp.query.filter_by(app_id=app_id).first()
-        return task_app.upload(tid, uid)
+        task_app = get_task_app()
+        result = task_app.upload(tid, uid)
+        db.session.commit()
+        return result
