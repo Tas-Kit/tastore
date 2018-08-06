@@ -1,7 +1,6 @@
 import os
 
 ENV = os.getenv('ENV', 'DEV')
-
 DEBUG = ENV != 'PROD'
 PER_PAGE = os.getenv('PER_PAGE', 30)
 TASKSERVICE_HOST = os.getenv('TASKSERVICE_HOST', 'taskservice')
