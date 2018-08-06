@@ -8,7 +8,7 @@ from datetime import datetime
 from .model import TaskApp
 from tastore import db
 from .constants import TASKAPP_STATUS
-from .config import PER_PAGE
+from config import PER_PAGE
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 
@@ -39,6 +39,21 @@ task_app_model = api.model('Task App', {
     'price': fields.Float(description='The price of each task app download'),
     'description': fields.String(description='The description of the task app'),
     'current_task': fields.String(description='The tid of the task in the task app')
+})
+
+task_model = api.model('Task Instance', {
+    'tid': fields.String(readOnly=True,
+                         description='tid of the task instance'),
+    'name': fields.String(readOnly=True,
+                          description='Name of the task instance'),
+    'status': fields.String(readOnly=True,
+                            description='The status of the task instance'),
+    'roles': fields.List(fields.String, readOnly=True,
+                         description='User defined roles of the task instance'),
+    'expected_effort_unit': fields.String(readOnly=True,
+                                          description='The unit of the expected effort'),
+    'expected_effort_num': fields.Float(readOnly=True,
+                                        description='The numeric value of the expected effort')
 })
 
 
@@ -144,20 +159,39 @@ class TaskAppView(Resource):
 @ns.route('/<string:app_id>/download/')
 class DownloadTaskApp(Resource):
 
+    @ns.doc('preview_task')
+    @api.marshal_with(task_model, envelope='task')
+    def get(self, app_id):
+        """
+        Preview the task information of the task app
+        """
+        task_app = TaskApp.query.filter_by(app_id=app_id).first()
+        return task_app.preview()
+
     @ns.doc('download_task')
+    @api.marshal_with(task_model, envelope='task')
     def post(self, app_id):
         """
         Download a task from this task app
         """
-        return 'SUCCESS'
+        args = parser.parse_args()
+        uid = args['uid']
+        task_app = TaskApp.query.filter_by(app_id=app_id).first()
+        return task_app.download(uid)
 
 
 @ns.route('/<string:app_id>/upload/')
 class UploadTaskApp(Resource):
 
     @ns.doc('upload_task', parser=tid_parser)
+    @api.marshal_with(task_model, envelope='task')
     def post(self, app_id):
         """
         Upload a task to Task App
         """
-        return 'SUCCESS'
+        args = parser.parse_args()
+        uid = args['uid']
+        args = tid_parser.parse_args()
+        tid = args['tid']
+        task_app = TaskApp.query.filter_by(app_id=app_id).first()
+        return task_app.upload(tid, uid)

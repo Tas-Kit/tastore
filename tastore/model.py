@@ -1,8 +1,10 @@
 import uuid
 from datetime import datetime
+from werkzeug.exceptions import BadRequest
 
 from tastore import db
 from .constants import TASKAPP_STATUS
+from util import taskservice
 
 
 def get_uuid():
@@ -23,8 +25,34 @@ class TaskApp(db.Model):
 
     _meta = ['name', 'description']
 
+    def assert_current_task(self):
+        if self.current_task is None:
+            error = BadRequest('Unable to find a binding task from this Task App')
+            error.status_code = 404
+            raise error
+
     def update(self, data):
         for key in self._meta:
             if key in data:
                 setattr(self, key, data[key])
         db.session.add(self)
+
+    def preview(self):
+        self.assert_current_task()
+        return taskservice.preview_task(self.current_task)
+
+    def download(self, uid):
+        self.assert_current_task()
+        task = taskservice.download_task(self.current_task, uid)
+        self.downloads += 1
+        db.session.add(self)
+        db.session.commit()
+        return task
+
+    def upload(self, tid, uid):
+        task = taskservice.upload_task(tid, uid, self.current_task)
+        if self.current_task is None:
+            self.current_task = task['tid']
+            db.session.add(self)
+            db.session.commit()
+        return task
