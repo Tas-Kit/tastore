@@ -9,7 +9,7 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     # Load common settings
-    app.config.from_object('tastore.settings')
+    app.config.from_object('settings')
 
     # Register blueprints
     from .views import register_blueprints

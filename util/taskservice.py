@@ -1,10 +1,9 @@
 import requests
 from flask import abort
 
-from config import TASKSERVICE_HOST, TASKSERVICE_PORT, TASKSERVICE_VERSION
+from settings import TASKSERVICE_HOST, TASKSERVICE_PORT, TASKSERVICE_VERSION
 
 base_url = 'http://{0}:{1}/api/{2}/taskservice/'.format(TASKSERVICE_HOST, TASKSERVICE_PORT, TASKSERVICE_VERSION)
-base_url = 'http://{0}:{1}/api/{2}/taskservice/'.format('localhost', '8002', 'v1')
 
 
 def handler(func):

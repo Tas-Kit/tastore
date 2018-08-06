@@ -8,7 +8,7 @@ from datetime import datetime
 from .model import TaskApp
 from tastore import db
 from .constants import TASKAPP_STATUS
-from config import PER_PAGE
+from settings import PER_PAGE
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 

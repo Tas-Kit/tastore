@@ -1,6 +1,0 @@
-import os
-
-PER_PAGE = os.getenv('PER_PAGE', 30)
-TASKSERVICE_HOST = os.getenv('TASKSERVICE_HOST', 'taskservice')
-TASKSERVICE_PORT = os.getenv('TASKSERVICE_HOST', '8000')
-TASKSERVICE_VERSION = os.getenv('TASKSERVICE_VERSION', 'v1')
