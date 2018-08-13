@@ -6,3 +6,4 @@ flask-script
 requests
 psycopg2-binary
 postgres
+sqlalchemy-utils
