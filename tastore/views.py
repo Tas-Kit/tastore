@@ -106,7 +106,7 @@ class TaskAppListView(Resource):
 
         # Check if author is querying his own tasks
         if uid != author_id:
-            query = query.filter_by(status=TASKAPP_STATUS.ACTIVE)
+            query = query.filter_by(status=TASKAPP_STATUS.ACTIVE).filter(TaskApp.current_task != None)
 
         # Filter task by author id
         if author_id is not None:
