@@ -1,13 +1,18 @@
 import os
+from sqlalchemy import create_engine
+from sqlalchemy_utils import database_exists, create_database
+
 
 ENV = os.getenv('ENV', 'DEV')
-
-DEBUG = ENV == 'PROD'
+DEBUG = ENV != 'PROD'
 PER_PAGE = os.getenv('PER_PAGE', 30)
 TASKSERVICE_HOST = os.getenv('TASKSERVICE_HOST', 'taskservice')
 TASKSERVICE_PORT = os.getenv('TASKSERVICE_HOST', '8000')
 TASKSERVICE_VERSION = os.getenv('TASKSERVICE_VERSION', 'v1')
 
+# Target static dir
+COLLECT_STATIC_ROOT = './static'
+COLLECT_STORAGE = 'flask_collect.storage.file'
 
 # Flask-SQLAlchemy settings
 SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -27,3 +32,9 @@ if ENV != 'DEV':
         port=DB_PORT,
         database=DB_DATABASE
     )
+
+    engine = create_engine(SQLALCHEMY_DATABASE_URI)
+    if not database_exists(engine.url):
+        print('Database does not exist {0}. Creating new database.'.format(DB_DATABASE))
+        create_database(engine.url)
+        print('Creating new database success: {0}'.format(database_exists(engine.url)))

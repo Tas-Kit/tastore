@@ -4,5 +4,6 @@ flask-migrate
 flask-restplus
 flask-script
 requests
-psycopg2
+psycopg2-binary
 postgres
+sqlalchemy-utils

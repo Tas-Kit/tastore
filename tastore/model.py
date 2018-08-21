@@ -46,7 +46,6 @@ class TaskApp(db.Model):
         task = taskservice.download_task(self.current_task, uid)
         self.downloads += 1
         db.session.add(self)
-        db.session.commit()
         return task
 
     def upload(self, tid, uid):
@@ -54,5 +53,4 @@ class TaskApp(db.Model):
         if self.current_task is None:
             self.current_task = task['tid']
             db.session.add(self)
-            db.session.commit()
         return task

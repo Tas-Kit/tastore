@@ -20,4 +20,9 @@ def create_app():
 
     # Setup Flask-Migrate
     migrate.init_app(app, db)
+
+    @app.route('/healthcheck', methods=['GET'])
+    def healthcheck():
+        return 'HEALTHY'
+
     return app
