@@ -5,6 +5,7 @@ from flask import Blueprint
 from flask_restplus import Api, Resource, fields, reqparse
 from datetime import datetime
 
+from util import util
 from .model import TaskApp
 from tastore import db
 from .constants import TASKAPP_STATUS
@@ -16,6 +17,13 @@ main_blueprint = Blueprint('main', __name__, template_folder='templates')
 api = Api(main_blueprint, version='1.0', title='Task App API',
           description='Task App API')
 
+user_model = api.model('User Model', {
+    'uid': fields.String(readonly=True,
+                         description='User ID'),
+    'username': fields.String(readonly=True,
+                              description='Username')
+})
+
 task_app_model = api.model('Task App', {
     'app_id': fields.String(readOnly=True,
                             description='The task unique identifier'),
@@ -23,6 +31,7 @@ task_app_model = api.model('Task App', {
                           description='The task name'),
     'author_id': fields.String(readOnly=True,
                                description='The user id of the author'),
+    'author': fields.Nested(user_model),
     'created_date': fields.DateTime(readOnly=True,
                                     dt_format='rfc822',
                                     description='The date time when this task app is created'),
@@ -119,7 +128,9 @@ class TaskAppListView(Resource):
             ilike_query = TaskApp.name.ilike('%{0}%'.format(keyword))
             query = query.filter(ilike_query)
 
-        return query.paginate(per_page=PER_PAGE).items
+        task_apps = query.paginate(per_page=PER_PAGE).items
+        task_apps = util.collect_user_info(task_apps)
+        return task_apps
 
     @ns.doc('Create Task App', parser=task_app_parser)
     @api.marshal_with(task_app_model, envelope='task_app')
