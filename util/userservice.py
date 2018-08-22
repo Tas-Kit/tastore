@@ -1,11 +1,9 @@
 import requests
 from flask import abort
 
-# from settings import USERSERVICE_HOST, USERSERVICE_PORT, USERSERVICE_VERSION
+from settings import USERSERVICE_HOST, USERSERVICE_PORT, USERSERVICE_VERSION
 
-# base_url = 'http://{0}:{1}/api/{2}/userservice/'.format(USERSERVICE_HOST, USERSERVICE_PORT, USERSERVICE_VERSION)
-
-base_url = 'http://localhost:8009/api/v1/userservice/'
+base_url = 'http://{0}:{1}/api/{2}/userservice/'.format(USERSERVICE_HOST, USERSERVICE_PORT, USERSERVICE_VERSION)
 
 
 def handler(func):
